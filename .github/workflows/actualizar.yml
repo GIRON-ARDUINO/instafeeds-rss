@@ -1,0 +1,37 @@
+name: Actualizar Feed RSS de Instagram
+
+on:
+  schedule:
+    # Se ejecuta de forma automática todos los días a las 8:00 AM UTC
+    - cron: '0 8 * * *'
+  workflow_dispatch: # Permite ejecutar el robot manualmente cuando quieras
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Permite al robot guardar el archivo final en tu cuenta
+
+    steps:
+    - name: Clonar el repositorio
+      uses: actions/checkout@v4
+
+    - name: Configurar Python
+      uses: actions/setup-python@v5
+      with:
+        python-python: '3.10'
+
+    - name: Instalar librerias necesarias
+      run: |
+        pip install instaloader feedgen
+
+    - name: Ejecutar el script
+      run: python generar_feed.py
+
+    - name: Guardar y subir cambios a GitHub
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user-email 'github-actions[bot]@://github.com'
+        git add instagram_feed.xml
+        git commit -m "Auto-actualizacion del feed RSS" || exit 0
+        git push
